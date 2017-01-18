@@ -31,8 +31,9 @@ Connect to MySQL from the MySQL command line client
 ===
 
 The following command starts another mysql container instance and runs the mysql command line client against your original mysql container, allowing you to execute SQL statements against your database instance:
-
+```Bash
 $ docker run -it --link some-mysql:mysql --rm mysql sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -P"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'
+```
 ... where some-mysql is the name of your original mysql container.
 
 This image can also be used as a client for non-Docker or remote MySQL instances:
@@ -44,32 +45,37 @@ More information about the MySQL command line client can be found in the MySQL d
 Container shell access and viewing MySQL logs
 
 The docker exec command allows you to run commands inside a Docker container. The following command line will give you a bash shell inside your mysql container:
-
+```Bash
 $ docker exec -it some-mysql bash
+```
 The MySQL Server log is available through Docker's container log:
-
+```Bash
 $ docker logs some-mysql
+```
 Using a custom MySQL configuration file
 
 The MySQL startup configuration is specified in the file /etc/mysql/my.cnf, and that file in turn includes any files found in the /etc/mysql/conf.d directory that end with .cnf. Settings in files in this directory will augment and/or override settings in /etc/mysql/my.cnf. If you want to use a customized MySQL configuration, you can create your alternative configuration file in a directory on the host machine and then mount that directory location as /etc/mysql/conf.d inside the mysql container.
 
 If /my/custom/config-file.cnf is the path and name of your custom configuration file, you can start your mysql container like this (note that only the directory path of the custom config file is used in this command):
-
+```Bash
 $ docker run --name some-mysql -v /my/custom:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:tag
+```
 This will start a new container some-mysql where the MySQL instance uses the combined startup settings from /etc/mysql/my.cnf and /etc/mysql/conf.d/config-file.cnf, with settings from the latter taking precedence.
 
 Note that users on host systems with SELinux enabled may see issues with this. The current workaround is to assign the relevant SELinux policy type to your new config file so that the container will be allowed to mount it:
-
+```Bash
 $ chcon -Rt svirt_sandbox_file_t /my/custom
+```
 Configuration without a cnf file
 
 Many configuration options can be passed as flags to mysqld. This will give you the flexibility to customize the container without needing a cnf file. For example, if you want to change the default encoding and collation for all tables to use UTF-8 (utf8mb4) just run the following:
-
+```Bash
 $ docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:tag --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+```
 If you would like to see a complete list of available options, just run:
-
+```Bash
 $ docker run -it --rm mysql:tag --verbose --help
-
+```
 Environment Variables
 ==
 
@@ -151,7 +157,10 @@ Creating database dumps
 
 Most of the normal tools will work, although their usage might be a little convoluted in some cases to ensure they have access to the mysqld server. A simple way to ensure this is to use docker exec and run the tool from the same container, similar to the following:
 
+```Bash
 $ docker exec some-mysql sh -c 'exec mysqldump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD"' > /some/path/on/your/host/all-databases.sql
+```
+
 Supported Docker versions
 This image is officially supported on Docker version 1.12.6.
 
