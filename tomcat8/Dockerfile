@@ -1,6 +1,6 @@
 FROM tomcat:8-jre8
 
-MAINTAINER lemon
+MAINTAINER scr436
 
 WORKDIR /root/
 
